@@ -6,6 +6,13 @@ import { runSeeders } from 'typeorm-extension';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: '*',
+  });
+
   const dataSource = app.get(DataSource);
 
   const userCount = await dataSource.getRepository(User).count();
