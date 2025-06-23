@@ -1,98 +1,162 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+**Conectar Backend (NestJS API)**
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Este projeto é a API backend do sistema **Conectar**, desenvolvida com NestJS, TypeORM e PostgreSQL. Ele fornece autenticação via JWT, gerenciamento de usuários com CRUD, filtros de listagem e suporte a usuários inativos.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Recursos
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Autenticação com JWT
+- Registro e login de usuários
+- CRUD de usuários com roles (`manager` e `regular`)
+- Listagem paginada e filtrada de usuários
+- Endpoints para usuários ativos e inativos
+- Docker Compose para PostgreSQL
+- Boas práticas de desenvolvimento (Lint, Prettier, testes)
 
-## Project setup
+## Pré-requisitos
 
-```bash
-$ yarn install
+- Node.js >= 18
+- npm ou yarn
+- Docker & Docker Compose (opcional, para subir banco)
+
+## Instalação
+
+1. Clone o repositório:
+
+   ```bash
+   git clone https://github.com/seu-usuario/conectar-backend.git
+   cd conectar-backend
+   ```
+
+2. Instale as dependências:
+
+   ```bash
+   npm install
+   # ou yarn install
+   ```
+
+## Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
+
+```dotenv
+# App
+PORT=3000
+
+# JWT
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRES_IN=3600s
+
+# Banco de Dados PostgreSQL
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=admin
+DB_PASSWORD=admin
+DB_DATABASE=conectar_system
 ```
 
-## Compile and run the project
+## Scripts Disponíveis
+
+No `package.json` estão os seguintes scripts principais:
+
+| Comando             | Descrição                                 |
+| ------------------- | ----------------------------------------- |
+| `npm run start`     | Inicia a aplicação (modo prod)            |
+| `npm run start:dev` | Inicia em modo de desenvolvimento (watch) |
+| `npm run build`     | Compila o projeto                         |
+| `npm run lint`      | Executa ESlint e corrige problemas        |
+| `npm run format`    | Formata código com Prettier               |
+
+## Executando Localmente
+
+Após instalar e configurar as variáveis de ambiente:
 
 ```bash
-# development
-$ yarn run start
+# Banco local manual (sem Docker)
+# Certifique-se de que o PostgreSQL está rodando nas configs do .env
 
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+# Em um terminal:
+npm run start:dev
 ```
 
-## Run tests
+A API ficará disponível em `http://localhost:3000`.
+
+## Docker Compose
+
+Há um serviço Docker para o banco PostgreSQL definido em `docker-compose.yml`:
+
+```yaml
+services:
+  conectar-postgres:
+    image: postgres:latest
+    container_name: conectar-postgres
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=conectar_system
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./docker/postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    networks:
+      - conectar-network
+
+networks:
+  conectar-network:
+    driver: bridge
+```
+
+Para subir o banco via Docker Compose:
 
 ```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+docker-compose up -d
 ```
 
-## Deployment
+Em seguida, rode a API normalmente (`npm run start:dev`).
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Estrutura de Pastas
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
+```text
+src/
+├── auth/               # Módulo de autenticação
+│   ├── auth.controller.ts
+│   ├── auth.service.ts
+│   └── guards/         # Strategies
+│   └── guards/         # Guards (e.g. ManagerGuard)
+├── user/               # Módulo de usuários
+│   ├── core/
+│   │   └── services/   # Lógica de negócio (UserService)
+│   └── http/rest/dto/  # DTOs (CreateUserDto, UpdateUserDto, etc.)
+├── app.module.ts       # Configurações globais
+└── main.ts             # Ponto de entrada
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Endpoints da API
 
-## Resources
+### Autenticação
 
-Check out a few resources that may come in handy when working with NestJS:
+| Método | Rota                 | Descrição                          | Guarda               |
+| ------ | -------------------- | ---------------------------------- | -------------------- |
+| POST   | `/api/auth/register` | Cria um novo usuário (role padrão) | —                    |
+| POST   | `/api/auth/login`    | Autentica e gera token JWT         | `AuthGuard('local')` |
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Usuários
 
-## Support
+Todos os endpoints de usuário requerem cabeçalho `Authorization: Bearer <token>`.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Método | Rota                  | Descrição                                     | Guarda         |
+| ------ | --------------------- | --------------------------------------------- | -------------- |
+| POST   | `/api/users`          | Cria usuário                                  | `ManagerGuard` |
+| GET    | `/api/users`          | Lista usuários ativos (paginação e filtros)   | `ManagerGuard` |
+| GET    | `/api/users/inactive` | Lista usuários inativos (paginação e filtros) | `ManagerGuard` |
+| GET    | `/api/users/:id`      | Busca usuário por ID                          | JWT Guard      |
+| PUT    | `/api/users/:id`      | Atualiza usuário por ID                       | JWT Guard      |
+| DELETE | `/api/users/:id`      | Remove usuário (role manager)                 | `ManagerGuard` |
 
-## Stay in touch
+**Parâmetros de Query (FilterQueryDto):**
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- `page`: número da página (padrão 1)
+- `limit`: itens por página (padrão 10)
+- `search`: termo de busca por nome ou email
